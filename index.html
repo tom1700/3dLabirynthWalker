@@ -1,0 +1,56 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/main.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/threejs/r84/three.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><script src="js/vendor/modernizr-2.8.3.min.js"></script>
+    </head>
+    <body>
+        <div class="container" id="optionsPage">
+            <div class="row section1">
+                <div class="col-md-12">
+                    <h1>3dLabirint Walker</h1>
+                    <p>Strona umożliwia poruszanie się po zdefiniowanym przez bitmape labiryncie.</p>
+                </div>
+            </div>
+            <div class="row section2">
+                <div class="col-md-12">
+                    <p>Załaduj bitmape z dysku lub wybierz przykładową.</p>
+                </div>
+            </div>
+            <form id="optionsForm" action="">
+                <div class="row section3">
+                    <div class="col-md-6 well" id="default">
+                        <input type="radio" name="map" checked>
+                        <canvas></canvas>
+                        <p>Szerokość: <span class="canvas-width"></span></p>
+                        <p>Wysokość: <span class="canvas-height"></span></p>
+                    </div>
+                    <div class="col-md-6 well" id="custom">
+                        <input type="radio" name="map">
+                        <input type="file" name="bitmap" disabled>
+                        <canvas></canvas>
+                        <p>Szerokość: <span class="canvas-width"></span></p>
+                        <p>Wysokość: <span class="canvas-height"></span></p>
+                    </div>
+                </div>
+                <div class="row section4">
+                    <div class="col-md-12">
+                        <input type="submit" id="submit" value="Przejdź do labiryntu">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <script data-main="js/main.js" src="js/require.js"></script>
+
+    </body>
+</html>
