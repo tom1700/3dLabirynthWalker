@@ -5,7 +5,7 @@ requirejs.config({
 requirejs(['options', 'game', 'bitmapconverter','canvas'],
 function   (Options, Game, BitmapConverter, Canvas) {
     $(document).ready(() => {
-
+        $("#board").hide();
         Canvas.initCanvasPanel({
             selector: "#default",
             url:"img/labirynth1.bmp"
@@ -22,8 +22,9 @@ function   (Options, Game, BitmapConverter, Canvas) {
 
         $("#custom input[type='radio']").click(() => $("#custom input[type='file']").removeAttr("disabled"));
 
-        $("#optionsForm").submit((ev) => {
-            ev.preventDefault();
+        $("#submit").click(() => {
+            let canvas = $("#board");
+            $("#board").show();
             let options = Options.getOptions();
             if(options.selector === "#custom"){
                 if(! $("#custom input[type='file']")[0].files || ! $("#custom input[type='file']")[0].files[0]){
@@ -31,9 +32,12 @@ function   (Options, Game, BitmapConverter, Canvas) {
                 }
             }
             $("#optionsPage").hide();
-            let virtualBoard = BitmapConverter.convert(options);
+            canvas[0].requestPointerLock = canvas[0].requestPointerLock ||
+                canvas[0].mozRequestPointerLock;
+            canvas[0].requestPointerLock();
             Game.init({
-                virtualBoard: virtualBoard
+                virtualBoard: BitmapConverter.convert(options),
+                canvas: canvas[0]
             })
         });
     });

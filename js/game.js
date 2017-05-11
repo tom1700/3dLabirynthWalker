@@ -1,53 +1,93 @@
 
-define(function () {
-
+define(['world', 'controls'],
+function (World) {
     let renderer;
     let virtualBoard;
-    let scene;
-    let camera;
-    let middle = window.innerWidth / 2;
-    let oldX = middle;
+    let scene = new THREE.Scene();
+    let camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    let directionVector = new THREE.Vector3();
+    let controls;
+
+    const SPEED = 0.1
+    const KEY_UP = 119;
+    const KEY_RIGHT = 100;
+    const KEY_DOWN = 115;
+    const KEY_LEFT = 97;
+    const yAxis = new THREE.Vector3(0,1,0).normalize();
+
     function render() {
-        requestAnimationFrame( render );
         renderer.render( scene, camera );
+        requestAnimationFrame( render );
     }
 
-    function mouseMove (ev) {
-        let vector = ev.clientX - oldX;
-        oldX = ev.clientX;
-        camera.rotation.y += -1* Math.PI * vector / window.innerWidth;
+    function checkCollisions () {
+
     }
 
+    function keyPressed (ev) {
+        directionVector = camera.getWorldDirection(directionVector);
+        if (ev.which === KEY_RIGHT) {
+            directionVector.applyAxisAngle(yAxis, 3*Math.PI/2);
+        }
+        if (ev.which === KEY_DOWN) {
+            directionVector.applyAxisAngle(yAxis, Math.PI);
+        }
+        if (ev.which === KEY_LEFT) {
+            directionVector.applyAxisAngle(yAxis, Math.PI/2);
+        }
+        if (ev.which === KEY_UP || ev.which === KEY_RIGHT || ev.which === KEY_DOWN || ev.which === KEY_LEFT) {
+            directionVector.y = 0;
+            controls.getObject().position.add(directionVector.multiplyScalar(SPEED));
+        }
+    }
+
+    function attachEvents () {
+        $(document).keypress(keyPressed);
+        $(document).keydown(keyPressed);
+    }
+
+    function generateWalls () {
+        let result = [];
+        for (let i = 0; i < virtualBoard.board.length; i++) {
+            for (let j = 0; j < virtualBoard.board[i].length; j++) {
+                if(virtualBoard.board[i][j] === 1) {
+                    result.push(
+                        World.createWall(
+                            { x:1, y:4, z:1 },
+                            { x:j - virtualBoard.board[i].length / 2, y:0, z:-i }
+                        )
+                    );
+                }
+            }
+        }
+
+        return Promise.all(result);
+    }
     return {
         init: (params) => {
-            virtualBoard = params.virtualBoard;
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-            renderer = new THREE.WebGLRenderer();
-
+            renderer = new THREE.WebGLRenderer({canvas: params.canvas/*,antialias:true*/});
             renderer.setSize( window.innerWidth, window.innerHeight );
-            document.body.appendChild( renderer.domElement );
 
-            let material = new THREE.MeshLambertMaterial({color: 0xFF0000});
-            let geometry = new THREE.BoxGeometry( 1, 1, 1 );
-            let cube1 = new THREE.Mesh( geometry, material );
-            cube1.rotateY(Math.PI/4);
-            scene.add( cube1 );
-            scene.add( new THREE.AmbientLight( 0x111111) );
+            let ground = World.createGround({ width:10, height:10 });
+            let light = World.createLight();
+            let ambientLight = new THREE.AmbientLight(0x555555);
 
-            let light = new THREE.DirectionalLight(0xffffff, 1);
-            light.position.x = 0;
-            light.position.y = 0;
-            light.position.z = 5;
-            scene.add(light);
+            virtualBoard = params.virtualBoard;
 
-            camera.position.x = 0;
-            camera.position.y = 0;
-            camera.position.z = 5;
+            generateWalls().then((walls) => {
 
-            document.addEventListener("mousemove", mouseMove);
-            render();
+                controls = new THREE.PointerLockControls( camera );
+                controls.enabled = true;
 
+                scene.add( controls.getObject() );
+
+                scene.add(light);
+                scene.add(ground);
+                walls.forEach((wall) => scene.add(wall));
+                scene.add(ambientLight);
+                attachEvents();
+                render();
+            });
         }
     }
 })
