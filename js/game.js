@@ -8,7 +8,7 @@ function (World) {
     let directionVector = new THREE.Vector3();
     let controls;
 
-    const SPEED = 0.1
+    const SPEED = 0.4;
     const KEY_UP = 119;
     const KEY_RIGHT = 100;
     const KEY_DOWN = 115;
@@ -20,8 +20,30 @@ function (World) {
         requestAnimationFrame( render );
     }
 
-    function checkCollisions () {
+    function positionToCords(position) {
+        let x = position.x + virtualBoard.board[0].length / 2;
+        let z = -1 * position.z;
+        return {
+            x:x >= 0 ? Math.floor(x) : Math.ceil(x),
+            z:z >= 0 ? Math.floor(z) : Math.ceil(z)
+        };
+    }
 
+    function checkCollisions (move) {
+        let newVector = controls.getObject().position.clone();
+        newVector.add(move.multiplyScalar(SPEED));
+        const position = positionToCords(newVector);
+        console.log(position);
+        if(position.z > virtualBoard.board.length || position.z < 0) {
+            return true;
+        }
+        if (position.x > virtualBoard.board[0].length || position.x < 0) {
+            return true;
+        }
+        if (virtualBoard.board[position.z][position.x] === 1) {
+            return false;
+        }
+        return true;
     }
 
     function keyPressed (ev) {
@@ -37,7 +59,9 @@ function (World) {
         }
         if (ev.which === KEY_UP || ev.which === KEY_RIGHT || ev.which === KEY_DOWN || ev.which === KEY_LEFT) {
             directionVector.y = 0;
-            controls.getObject().position.add(directionVector.multiplyScalar(SPEED));
+            if (checkCollisions(directionVector)) {
+                controls.getObject().position.add(directionVector.multiplyScalar(SPEED));
+            }
         }
     }
 
@@ -63,6 +87,7 @@ function (World) {
 
         return Promise.all(result);
     }
+
     return {
         init: (params) => {
             renderer = new THREE.WebGLRenderer({canvas: params.canvas/*,antialias:true*/});

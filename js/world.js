@@ -44,8 +44,8 @@ define(function () {
                     let material = new THREE.MeshBasicMaterial( { map: texture } );
                     let wall = new THREE.Mesh( geometry, material );
                     wall.position.y = position.y;
-                    wall.position.x = position.x;
-                    wall.position.z = position.z;
+                    wall.position.x = position.x+0.5;
+                    wall.position.z = position.z-0.5;
                     resolve(wall);
                 });
             });
