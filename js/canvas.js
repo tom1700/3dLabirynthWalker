@@ -3,11 +3,12 @@ define(function () {
     return {
         initCanvasPanel : (params) => {
             const canvasSelector = params.selector + " canvas";
-            let ctx= $(canvasSelector)[0].getContext("2d");
+            let ctx = $(canvasSelector)[0].getContext("2d");
             if(params.file) {
                 let URL = window.webkitURL || window.URL;
                 params.url = URL.createObjectURL(params.file);
             }
+
             let img = new Image();
 
             ctx.webkitImageSmoothingEnabled = false;
