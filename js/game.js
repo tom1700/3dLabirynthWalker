@@ -8,14 +8,22 @@ function (World) {
     let directionVector = new THREE.Vector3();
     let controls;
 
-    const SPEED = 0.4;
-    const KEY_UP = 119;
-    const KEY_RIGHT = 100;
-    const KEY_DOWN = 115;
-    const KEY_LEFT = 97;
+    const SPEED = 0.3;
+    const KEY_UP = 87;
+    const KEY_RIGHT = 68;
+    const KEY_DOWN = 83;
+    const KEY_LEFT = 65;
     const yAxis = new THREE.Vector3(0,1,0).normalize();
 
+    let moveDirections = {
+        forward : false,
+        left: false,
+        right: false,
+        backward: false
+    };
+
     function render() {
+        move();
         renderer.render( scene, camera );
         requestAnimationFrame( render );
     }
@@ -33,7 +41,6 @@ function (World) {
         let newVector = controls.getObject().position.clone();
         newVector.add(move.multiplyScalar(SPEED));
         const position = positionToCords(newVector);
-        console.log(position);
         if(position.z > virtualBoard.board.length || position.z < 0) {
             return true;
         }
@@ -47,18 +54,71 @@ function (World) {
     }
 
     function keyPressed (ev) {
-        directionVector = camera.getWorldDirection(directionVector);
+
+        console.log(ev.which);
         if (ev.which === KEY_RIGHT) {
-            directionVector.applyAxisAngle(yAxis, 3*Math.PI/2);
+            moveDirections.right = true;
         }
-        if (ev.which === KEY_DOWN) {
-            directionVector.applyAxisAngle(yAxis, Math.PI);
+        else if (ev.which === KEY_DOWN) {
+            moveDirections.backward = true;
         }
-        if (ev.which === KEY_LEFT) {
+        else if (ev.which === KEY_LEFT) {
+            moveDirections.left = true;
+        }
+        else if (ev.which === KEY_UP) {
+            moveDirections.forward = true;
+        }
+    }
+
+    function keyReleased (ev) {
+        if (ev.which === KEY_RIGHT) {
+            moveDirections.right = false;
+        }
+        else if (ev.which === KEY_DOWN) {
+            moveDirections.backward = false;
+        }
+        else if (ev.which === KEY_LEFT) {
+            moveDirections.left = false;
+        }
+        else if (ev.which === KEY_UP) {
+            moveDirections.forward = false;
+        }
+    }
+
+    function move () {
+        console.log(moveDirections);
+        directionVector = camera.getWorldDirection(directionVector);
+
+        if (moveDirections.forward && !moveDirections.backward) {
+            if (moveDirections.left && !moveDirections.right) {
+                directionVector.applyAxisAngle(yAxis, Math.PI/4);
+            }
+            else if (moveDirections.right && !moveDirections.left) {
+                directionVector.applyAxisAngle(yAxis, 7*Math.PI/4);
+            }
+            else {/*No need to do anything*/}
+        }
+        else if (moveDirections.backward && !moveDirections.forward) {
+            if (moveDirections.left && !moveDirections.right) {
+                directionVector.applyAxisAngle(yAxis, 3*Math.PI/4);
+            }
+            else if (moveDirections.right && !moveDirections.left) {
+                directionVector.applyAxisAngle(yAxis, 5*Math.PI/4);
+            }
+            else {
+                directionVector.applyAxisAngle(yAxis, Math.PI);
+            }
+        }
+        else if (moveDirections.left && !moveDirections.right) {
             directionVector.applyAxisAngle(yAxis, Math.PI/2);
         }
-        if (ev.which === KEY_UP || ev.which === KEY_RIGHT || ev.which === KEY_DOWN || ev.which === KEY_LEFT) {
-            directionVector.y = 0;
+        else if (moveDirections.right && !moveDirections.left) {
+            directionVector.applyAxisAngle(yAxis, 3*Math.PI/2);
+        }
+
+        directionVector.y = 0;
+        if (moveDirections.forward || moveDirections.left || moveDirections.right || moveDirections.backward) {
+
             if (checkCollisions(directionVector)) {
                 controls.getObject().position.add(directionVector.multiplyScalar(SPEED));
             }
@@ -66,8 +126,8 @@ function (World) {
     }
 
     function attachEvents () {
-        $(document).keypress(keyPressed);
         $(document).keydown(keyPressed);
+        $(document).keyup(keyReleased);
     }
 
     function generateWalls () {
