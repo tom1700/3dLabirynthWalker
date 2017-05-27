@@ -96,26 +96,29 @@ textarea {
    ========================================================================== */
 .section1{}
 .section1 h1{
-    text-align: center;
 }
 .section1 p {
-    text-align: center;
 }
 
 .section2 {
-    padding:5vw 0;
+    padding:1vw 0;
 }
-
+.input-container {
+    width:100%;
+    display:block;
+}
 canvas{
     width:100%;
     height:100%;
     cursor: none;
+    display:block;
 }
 
 #custom canvas {
-    width:100%;
-    height:40vw;
+    width:50%;
+    height:17vw;
     image-rendering: optimizeSpeed;             // Older versions of FF
+    margin: 0 auto;
     image-rendering: -moz-crisp-edges;          // FF 6.0+
     image-rendering: -webkit-optimize-contrast; // Webkit (non standard naming)
     image-rendering: -o-crisp-edges;            // OS X & Windows Opera (12.02+)
@@ -124,8 +127,9 @@ canvas{
 }
 
 #default canvas {
-    width:100%;
-    height:40vw;
+    width:50%;
+    height:17vw;
+    margin: 0 auto;
     margin-top:1.7em;
     image-rendering: optimizeSpeed;             // Older versions of FF
     image-rendering: -moz-crisp-edges;          // FF 6.0+
@@ -136,7 +140,7 @@ canvas{
 }
 
 
-.section4 #submit {
+.section4 .submit {
     margin: 2vw 0;
     text-transform: uppercase;
     padding:1em;

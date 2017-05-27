@@ -8,7 +8,7 @@ function (World) {
     let directionVector = new THREE.Vector3();
     let controls;
 
-    const SPEED = 0.3;
+    const SPEED = 0.12;
     const KEY_UP = 87;
     const KEY_RIGHT = 68;
     const KEY_DOWN = 83;
@@ -29,7 +29,7 @@ function (World) {
     }
 
     function positionToCords(position) {
-        let x = position.x + virtualBoard.board[0].length / 2;
+        let x = position.x;
         let z = -1 * position.z;
         return {
             x:x >= 0 ? Math.floor(x) : Math.ceil(x),
@@ -38,24 +38,24 @@ function (World) {
     }
 
     function checkCollisions (move) {
-        let newVector = controls.getObject().position.clone();
-        newVector.add(move.multiplyScalar(SPEED));
-        const position = positionToCords(newVector);
-        if(position.z > virtualBoard.board.length || position.z < 0) {
+        const position = controls.getObject().position;
+        let newVector = position.clone();
+        let moveCopy = move.clone();
+        newVector.add(moveCopy.multiplyScalar(SPEED*2));
+        const cord = positionToCords(newVector);
+        if(cord.z >= virtualBoard.board.length || cord.z < 0) {
             return true;
         }
-        if (position.x > virtualBoard.board[0].length || position.x < 0) {
+        if (cord.x >= virtualBoard.board[0].length || cord.x < 0) {
             return true;
         }
-        if (virtualBoard.board[position.z][position.x] === 1) {
+        if (virtualBoard.board[cord.z][cord.x] === 1) {
             return false;
         }
         return true;
     }
 
     function keyPressed (ev) {
-
-        console.log(ev.which);
         if (ev.which === KEY_RIGHT) {
             moveDirections.right = true;
         }
@@ -86,7 +86,6 @@ function (World) {
     }
 
     function move () {
-        console.log(moveDirections);
         directionVector = camera.getWorldDirection(directionVector);
 
         if (moveDirections.forward && !moveDirections.backward) {
@@ -118,10 +117,37 @@ function (World) {
 
         directionVector.y = 0;
         if (moveDirections.forward || moveDirections.left || moveDirections.right || moveDirections.backward) {
+            if (!checkCollisions(directionVector)) {
+                const position = controls.getObject().position.clone();
+                const newPosition = position.clone().add(directionVector.multiplyScalar(SPEED));
+                const cords = positionToCords(position);
+                const newCords = positionToCords(newPosition);
 
-            if (checkCollisions(directionVector)) {
-                controls.getObject().position.add(directionVector.multiplyScalar(SPEED));
+                if (cords.x !== newCords.x) {
+                    if (cords.z === newCords.z) {
+                        directionVector.x = 0;
+                    }
+                    else if (cords.z < newCords.z && virtualBoard.board[newCords.z-1] && virtualBoard.board[newCords.z-1][newCords.x] === 1) {
+                        directionVector.x = 0;
+                    }
+                    else if (cords.z > newCords.z && virtualBoard.board[newCords.z+1] && virtualBoard.board[newCords.z+1][newCords.x] === 1) {
+                        directionVector.x = 0;
+                    }
+                }
+                if (cords.z !== newCords.z) {
+                    if (cords.x === newCords.x) {
+                        directionVector.z = 0;
+                    }
+                    else if (cords.x < newCords.x && virtualBoard.board[newCords.z][newCords.x-1] === 1) {
+                        directionVector.z = 0;
+                    }
+                    else if (cords.x > newCords.x && virtualBoard.board[newCords.z][newCords.x+1] === 1) {
+                        directionVector.z = 0;
+                    }
+                }
+                directionVector.multiplyScalar(8);
             }
+            controls.getObject().position.add(directionVector.multiplyScalar(SPEED));
         }
     }
 
@@ -138,7 +164,7 @@ function (World) {
                     result.push(
                         World.createWall(
                             { x:1, y:4, z:1 },
-                            { x:j - virtualBoard.board[i].length / 2, y:0, z:-i }
+                            { x:j, y:0, z:-i }
                         )
                     );
                 }
@@ -153,11 +179,11 @@ function (World) {
             renderer = new THREE.WebGLRenderer({canvas: params.canvas/*,antialias:true*/});
             renderer.setSize( window.innerWidth, window.innerHeight );
 
-            let ground = World.createGround({ width:10, height:10 });
+            virtualBoard = params.virtualBoard;
+            let ground = World.createGround({ width:virtualBoard.board[0].length, height:virtualBoard.board.length });
             let light = World.createLight();
             let ambientLight = new THREE.AmbientLight(0x555555);
 
-            virtualBoard = params.virtualBoard;
 
             generateWalls().then((walls) => {
 

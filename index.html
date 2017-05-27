@@ -21,26 +21,26 @@
             <canvas id="board" v-show="gameStarted"></canvas>
             <div class="container" v-show="!gameStarted" id="optionsPage">
                 <div class="row section1">
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                         <h1>3dLabirint Walker</h1>
-                        <p>Strona umożliwia poruszanie się po zdefiniowanym przez bitmape labiryncie.</p>
-                    </div>
-                </div>
-                <div class="row section2">
-                    <div class="col-md-12">
-                        <p>Załaduj bitmape z dysku lub wybierz przykładową.</p>
+                        <p>Strona umożliwia poruszanie się po zdefiniowanym przez bitmape labiryncie.
+                            Załaduj bitmape z dysku lub wybierz przykładową.</p>
                     </div>
                 </div>
                 <div id="optionsForm">
                     <div class="row section3">
-                        <div class="col-md-6 well" id="default">
-                            <input type="radio" value="defaultMap" v-model="mapType">
+                        <div class="col-md-5 well" id="default">
+                            <div class="input-container">
+                                <input type="radio" value="defaultMap" v-model="mapType">
+                            </div>
                             <canvas></canvas>
                             <p>Szerokość: <span class="canvas-width"></span></p>
                             <p>Wysokość: <span class="canvas-height"></span></p>
                         </div>
-                        <div class="col-md-6 well" id="custom">
-                            <input type="radio" value="customMap" v-model="mapType">
+                        <div class="col-md-5 well" id="custom">
+                            <div class="input-container">
+                                <input type="radio" value="customMap" v-model="mapType">
+                            </div>
                             <input type="file" @change="onFileChange" :disabled="mapType !== 'customMap'">
                             <canvas></canvas>
                             <p>Szerokość: <span class="canvas-width"></span></p>
@@ -49,7 +49,8 @@
                     </div>
                     <div class="row section4">
                         <div class="col-md-12">
-                            <button v-on:click="submit()" :disabled="mapType === 'customMap' && !bitmapLoaded">
+                            <button class="submit btn btn-default"
+                                    v-on:click="submit()" :disabled="mapType === 'customMap' && !bitmapLoaded">
                                 Przejdź do labiryntu
                             </button>
                         </div>

@@ -10,14 +10,14 @@ define(function () {
             let wireframe = THREE.ImageUtils.loadTexture( 'img/floor.png' );
             wireframe.wrapS = wireframe.wrapT = THREE.RepeatWrapping;
             wireframe.repeat.set( size.width, size.height );
-
-            let planeGeometry = new THREE.PlaneGeometry( size.width + 2, size.height + 2, 1, 1 );
+            let planeGeometry = new THREE.PlaneGeometry( size.width *2, size.height *2, 1, 1 );
             let planeMaterial = new THREE.MeshLambertMaterial( { map: wireframe } );
             let plane = new THREE.Mesh( planeGeometry, planeMaterial);
 
             plane.rotation.x = -Math.PI/2;
             plane.position.y = -2;
-            plane.position.z = (-1 * size.height / 2) + 1;
+            plane.position.z = -size.height / 2;
+            plane.position.x = size.width / 2;
 
             return plane;
         },
@@ -44,8 +44,8 @@ define(function () {
                     let material = new THREE.MeshBasicMaterial( { map: texture } );
                     let wall = new THREE.Mesh( geometry, material );
                     wall.position.y = position.y;
-                    wall.position.x = position.x+0.5;
-                    wall.position.z = position.z-0.5;
+                    wall.position.x = position.x+=0.5;
+                    wall.position.z = position.z-=0.5;
                     resolve(wall);
                 });
             });
