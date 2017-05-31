@@ -9,8 +9,9 @@ define(function () {
         createGround : (size) => {
             let wireframe = THREE.ImageUtils.loadTexture( 'img/floor.png' );
             wireframe.wrapS = wireframe.wrapT = THREE.RepeatWrapping;
-            wireframe.repeat.set( size.width, size.height );
-            let planeGeometry = new THREE.PlaneGeometry( size.width *2, size.height *2, 1, 1 );
+            wireframe.repeat.set( size.width*4, size.height *4);
+            let planeGeometry = new THREE.PlaneGeometry( size.width *8, size.height *8, 1, 1 );
+            console.log(planeGeometry);
             let planeMaterial = new THREE.MeshLambertMaterial( { map: wireframe } );
             let plane = new THREE.Mesh( planeGeometry, planeMaterial);
 
@@ -49,7 +50,25 @@ define(function () {
                     resolve(wall);
                 });
             });
-
+        },
+        createSky : () => {
+            return new Promise((resolve,reject) => {
+                new THREE.CubeTextureLoader().load([
+                    'img/right-sky.png', 'img/left-sky.png',
+                    'img/top-sky.png', 'img/bottom-sky.png',
+                    'img/front-sky.png', 'img/back-sky.png'
+                ],(textureCube) => {
+                    let geometry = new THREE.CubeGeometry( 100000, 100000, 100000);
+                    var material = new THREE.MeshBasicMaterial({ 
+                        color: 0xffffff, 
+                        envMap: textureCube, 
+                        side: THREE.BackSide,
+                        overdraw: true
+                    });
+                    resolve(new THREE.Mesh( geometry, material ));
+                });
+            });
         }
+
     }
 });

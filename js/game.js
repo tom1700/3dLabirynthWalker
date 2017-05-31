@@ -4,7 +4,7 @@ function (World) {
     let renderer;
     let virtualBoard;
     let scene = new THREE.Scene();
-    let camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    let camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000000 );
     let directionVector = new THREE.Vector3();
     let controls;
 
@@ -191,7 +191,6 @@ function (World) {
                 controls.enabled = true;
 
                 scene.add( controls.getObject() );
-
                 scene.add(light);
                 scene.add(ground);
                 walls.forEach((wall) => scene.add(wall));
@@ -199,6 +198,7 @@ function (World) {
                 attachEvents();
                 render();
             });
+            World.createSky().then(sky => scene.add(sky));
         }
     }
 })
