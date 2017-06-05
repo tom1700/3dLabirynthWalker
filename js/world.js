@@ -11,7 +11,6 @@ define(function () {
             wireframe.wrapS = wireframe.wrapT = THREE.RepeatWrapping;
             wireframe.repeat.set( size.width*4, size.height *4);
             let planeGeometry = new THREE.PlaneGeometry( size.width *8, size.height *8, 1, 1 );
-            console.log(planeGeometry);
             let planeMaterial = new THREE.MeshLambertMaterial( { map: wireframe } );
             let plane = new THREE.Mesh( planeGeometry, planeMaterial);
 
@@ -42,7 +41,7 @@ define(function () {
                 }
                 wallTexture.then((texture) => {
                     let geometry = new THREE.BoxGeometry( size.x, size.y, size.z);
-                    let material = new THREE.MeshBasicMaterial( { map: texture } );
+                    let material = new THREE.MeshBasicMaterial( { map: texture, side: THREE.DoubleSide} );
                     let wall = new THREE.Mesh( geometry, material );
                     wall.position.y = position.y;
                     wall.position.x = position.x+=0.5;
@@ -59,9 +58,9 @@ define(function () {
                     'img/front-sky.png', 'img/back-sky.png'
                 ],(textureCube) => {
                     let geometry = new THREE.CubeGeometry( 100000, 100000, 100000);
-                    var material = new THREE.MeshBasicMaterial({ 
-                        color: 0xffffff, 
-                        envMap: textureCube, 
+                    var material = new THREE.MeshBasicMaterial({
+                        color: 0xffffff,
+                        envMap: textureCube,
                         side: THREE.BackSide,
                         overdraw: true
                     });

@@ -29,25 +29,26 @@ function (World) {
     }
 
     function positionToCords(position) {
-        let x = position.x;
-        let z = -1 * position.z;
-        return {
-            x:x >= 0 ? Math.floor(x) : Math.ceil(x),
-            z:z >= 0 ? Math.floor(z) : Math.ceil(z)
-        };
+        let x = Math.floor(position.x);
+        let z = Math.floor(-1 * position.z);
+        return { x, z };
     }
 
     function checkCollisions (move) {
         const position = controls.getObject().position;
         let newVector = position.clone();
         let moveCopy = move.clone();
-        newVector.add(moveCopy.multiplyScalar(SPEED*2));
+        moveCopy.multiplyScalar(SPEED);
+        newVector.add(moveCopy);
         const cord = positionToCords(newVector);
         if(cord.z >= virtualBoard.board.length || cord.z < 0) {
             return true;
         }
         if (cord.x >= virtualBoard.board[0].length || cord.x < 0) {
             return true;
+        }
+        if(!virtualBoard.board[cord.z]) {
+            return false;
         }
         if (virtualBoard.board[cord.z][cord.x] === 1) {
             return false;
@@ -122,7 +123,6 @@ function (World) {
                 const newPosition = position.clone().add(directionVector.multiplyScalar(SPEED));
                 const cords = positionToCords(position);
                 const newCords = positionToCords(newPosition);
-
                 if (cords.x !== newCords.x) {
                     if (cords.z === newCords.z) {
                         directionVector.x = 0;
@@ -138,15 +138,16 @@ function (World) {
                     if (cords.x === newCords.x) {
                         directionVector.z = 0;
                     }
-                    else if (cords.x < newCords.x && virtualBoard.board[newCords.z][newCords.x-1] === 1) {
+                    else if (cords.x < newCords.x && virtualBoard.board[newCords.z] && virtualBoard.board[newCords.z][newCords.x-1] === 1) {
                         directionVector.z = 0;
                     }
-                    else if (cords.x > newCords.x && virtualBoard.board[newCords.z][newCords.x+1] === 1) {
+                    else if (cords.x > newCords.x && virtualBoard.board[newCords.z] && virtualBoard.board[newCords.z][newCords.x+1] === 1) {
                         directionVector.z = 0;
                     }
                 }
                 directionVector.multiplyScalar(8);
             }
+
             controls.getObject().position.add(directionVector.multiplyScalar(SPEED));
         }
     }
@@ -161,10 +162,48 @@ function (World) {
         for (let i = 0; i < virtualBoard.board.length; i++) {
             for (let j = 0; j < virtualBoard.board[i].length; j++) {
                 if(virtualBoard.board[i][j] === 1) {
+                    let xPos,zPos,xWidth,zWidth;
+                    xPos = j;
+                    xWidth = 1;
+                    zPos = -i;
+                    zWidth = 1;
+
+                    if(j === 0 || virtualBoard.board[i][j-1] !== 1) {
+                        xPos = j+0.1;
+                        xWidth = 0.8;
+                    }
+
+                    if(j + 1 === virtualBoard.board[i].length || virtualBoard.board[i][j+1] !== 1) {
+                        if(xPos === j) {
+                            xWidth = 0.8;
+                            xPos = j-0.1;
+                        }
+                        else {
+                            xWidth = 0.6;
+                            xPos = j;
+                        }
+                    }
+
+                    if(i === 0 || virtualBoard.board[i-1][j] !== 1) {
+                        zPos = -i-0.1;
+                        zWidth = 0.8;
+                    }
+
+                    if(i + 1 === virtualBoard.board.length || virtualBoard.board[i+1][j] !== 1) {
+                        if(zPos === -i) {
+                            zWidth = 0.8;
+                            zPos = -i+0.1;
+                        }
+                        else {
+                            zWidth = 0.6;
+                            zPos = -i;
+                        }
+                    }
+
                     result.push(
                         World.createWall(
-                            { x:1, y:4, z:1 },
-                            { x:j, y:0, z:-i }
+                            { x:xWidth, y:4, z:zWidth },
+                            { x:xPos, y:0, z:zPos }
                         )
                     );
                 }
